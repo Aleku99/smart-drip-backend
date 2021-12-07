@@ -36,6 +36,9 @@ app.post("/login", (req, res) => {
     .equalTo(username)
     .on("child_added", (snapshot) => {
       console.log(snapshot.val());
+      bcrypt.compare(password, snapshot.val().hash, function (err, result) {
+        console.log(result);
+      });
     });
 });
 app.post("/signup", (req, res) => {
@@ -47,7 +50,7 @@ app.post("/signup", (req, res) => {
   let phonenumber = req.body.phonenumber;
   let email = req.body.email;
   let password = req.body.password;
-  bcrypt.hash(password, 5, function (err, hash) {
+  bcrypt.hash(password, 0, function (err, hash) {
     let entry = {
       fname: fname,
       lname: lname,
