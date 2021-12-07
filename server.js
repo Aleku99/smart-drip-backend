@@ -29,6 +29,14 @@ app.get("/", (req, res) => {
 });
 app.post("/login", (req, res) => {
   console.log(req.body);
+  let username = req.body.username;
+  let password = req.body.password;
+  ref
+    .orderByChild("email")
+    .equalTo(username)
+    .on("child_added", (snapshot) => {
+      console.log(snapshot.val());
+    });
 });
 app.post("/signup", (req, res) => {
   console.log(req.body);
