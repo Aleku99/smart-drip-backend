@@ -20,29 +20,33 @@ admin.initializeApp({
 });
 var db = admin.database();
 var ref = db.ref();
-ref.on("value", function (snapshot) {
-  console.log(snapshot.val());
-});
+ref.on("value", function (snapshot) {});
 
 app.get("/", (req, res) => {
   res.send(`<h1 style="text-align: center">smart-drip-backend</h1>`);
 });
 app.post("/login", (req, res) => {
-  console.log(req.body);
   let username = req.body.username;
   let password = req.body.password;
+  console.log(req.body);
   ref
     .orderByChild("email")
     .equalTo(username)
     .on("child_added", (snapshot) => {
       console.log(snapshot.val());
       bcrypt.compare(password, snapshot.val().hash, function (err, result) {
-        console.log(result);
+        console.log(result); //TODO: check what to do with err param in order to give correct response code
+        if (result) {
+          return res.status(200).send(snapshot.val());
+        } else {
+          return res.status(406).send("Login not succesfull");
+        }
       });
     });
+  console.log("muie");
+  // return res.status(404).send("Login not succesfull");
 });
 app.post("/signup", (req, res) => {
-  console.log(req.body);
   let fname = req.body.fname;
   let lname = req.body.lname;
   let city = req.body.city;
@@ -61,8 +65,8 @@ app.post("/signup", (req, res) => {
       hash: hash,
     };
     ref.child(uuid.v1()).set(entry);
+    res.status(200).send(entry);
   });
-  res.send("Signup req successfull");
 });
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
