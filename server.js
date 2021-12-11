@@ -28,23 +28,23 @@ app.get("/", (req, res) => {
 app.post("/login", (req, res) => {
   let username = req.body.username;
   let password = req.body.password;
-  console.log(req.body);
+  let user_found = false;
   ref
     .orderByChild("email")
     .equalTo(username)
     .on("child_added", (snapshot) => {
-      console.log(snapshot.val());
+      user_found = true;
       bcrypt.compare(password, snapshot.val().hash, function (err, result) {
-        console.log(result); //TODO: check what to do with err param in order to give correct response code
         if (result) {
           return res.status(200).send(snapshot.val());
         } else {
-          return res.status(406).send("Login not succesfull");
+          return res.status(401).send("Password not correct");
         }
       });
     });
-  console.log("muie");
-  // return res.status(404).send("Login not succesfull");
+  if (!user_found) {
+    res.status(404).send("Username doesn't exist");
+  }
 });
 app.post("/signup", (req, res) => {
   let fname = req.body.fname;
