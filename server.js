@@ -2,6 +2,8 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 var uuid = require("uuid");
 var admin = require("firebase-admin");
+const Gpio = require("onoff").Gpio;
+const led = new Gpio(2, "out");
 
 const app = express();
 const port = 3001;
@@ -71,3 +73,10 @@ app.post("/signup", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+for (let i = 0; i < 1000000; i++) {
+  setTimeout(function () {
+    led.writeSync(true);
+  }, 2000);
+  led.writeSync(false);
+}
