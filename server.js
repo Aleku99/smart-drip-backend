@@ -82,8 +82,8 @@ app.post("/signup", (req, res) => {
   });
 });
 
-app.post("/change_config", async (req,res)=>{
-    const chosen_config = await req.body.mode;
+app.post("/change_config",  (req,res)=>{
+    let chosen_config =  req.body.mode;
     if(chosen_config == 0){
       if(intervalID){
         clearInterval(intervalID);
