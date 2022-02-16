@@ -53,6 +53,7 @@ app.post("/change_config", (req, res) => {
     }
     LED.writeSync(0);
   }
+  res.status(200).send("Success");
 });
 
 app.listen(port, () => {
