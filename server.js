@@ -25,16 +25,14 @@ app.post("/change_config", (req, res) => {
     let hour = req.body.hour;
     let minutes = req.body.minutes;
     let duration = req.body.duration;
-    let date = new Date();
     intervalID = setInterval(() => {
+      let date = new Date();
       if (hour == date.getHours() && minutes == date.getMinutes()) {
-        console.log("Time is nigh");
         LED.writeSync(1);
         setTimeout(() => {
           LED.writeSync(0);
         }, duration * 1000);
       } else {
-        console.log("Time is not nigh");
       }
     }, 60000);
   } else if (chosen_config == 1) {
@@ -48,7 +46,7 @@ app.post("/change_config", (req, res) => {
       setTimeout(() => {
         LED.writeSync(0);
       }, duration * 1000);
-    }, interval * 1000);
+    }, interval * 3600000);
   } else {
     if (intervalID) {
       clearInterval(intervalID);
