@@ -3,16 +3,6 @@ var Gpio = require("onoff").Gpio;
 var LED = new Gpio(17, "out");
 var intervalID = 0; //TODO: fix intervalID reference error
 
-function blinkLED() {
-  //function to start blinking
-  if (LED.readSync() === 0) {
-    //check the pin state, if the state is 0 (or off)
-    LED.writeSync(1); //set pin state to 1 (turn LED on)
-  } else {
-    LED.writeSync(0); //set pin state to 0 (turn LED off)
-  }
-}
-
 const app = express();
 const port = 3001;
 
@@ -32,12 +22,33 @@ app.post("/change_config", (req, res) => {
     if (intervalID) {
       clearInterval(intervalID);
     }
-    intervalID = setInterval(blinkLED, 250);
+    let hour = req.body.hour;
+    let minutes = req.body.minutes;
+    let duration = req.body.duration;
+    let date = new Date();
+    intervalID = setInterval(() => {
+      if (hour == date.getHours() && minutes == date.getMinutes()) {
+        console.log("Time is nigh");
+        LED.writeSync(1);
+        setTimeout(() => {
+          LED.writeSync(0);
+        }, duration * 1000);
+      } else {
+        console.log("Time is not nigh");
+      }
+    }, 60000);
   } else if (chosen_config == 1) {
     if (intervalID) {
       clearInterval(intervalID);
     }
-    intervalID = setInterval(blinkLED, 1000);
+    let interval = req.body.interval;
+    let duration = req.body.duration;
+    intervalID = setInterval(() => {
+      LED.writeSync(1);
+      setTimeout(() => {
+        LED.writeSync(0);
+      }, duration * 1000);
+    }, interval * 1000);
   } else {
     if (intervalID) {
       clearInterval(intervalID);
