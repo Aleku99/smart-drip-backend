@@ -56,6 +56,17 @@ app.post("/change_config", (req, res) => {
   res.status(200).send("Success");
 });
 
+app.get("/check_history", (req,res)=>{
+  let humidity_data=[];
+  let temperature_data=[];
+  for(let i=0;i<31;i++){
+    humidity_data.push(i*100);
+    temperature_data.push(i*110);
+  }
+  let data = {humidity_data: humidity_data, temperature_data:temperature_data};
+  res.status(200).send(data);
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
