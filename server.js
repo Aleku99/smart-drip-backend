@@ -2,6 +2,9 @@ const express = require("express");
 var Gpio = require("onoff").Gpio;
 var LED = new Gpio(17, "out");
 var intervalID = 0; //TODO: fix intervalID reference error
+var sensor = require("node-dht-sensor");
+let humidity_data = []; 
+let temperature_data=[];
 
 const app = express();
 const port = 3001;
@@ -11,6 +14,27 @@ const { default: axios } = require("axios");
 
 app.use(cors()); // Use this after the variable declaration
 app.use(express.json());
+
+function read_sensor_data(){
+    sensor.read(11,15,function(err, temperature, humidity){
+    if(!err){
+      console.log(`temp: ${temperature} degrees celsius, humidity: ${humidity}%`);
+      if(humidity_data.length == 744 || temperature_data.length == 744){ //744 hours in a month with 31 days
+            humidity_data.shift();
+            temperature_data.shift();
+            humidity_data.push(humidity);
+            temperature_data.push(temperature);
+      }
+      else{
+        humidity_data.push(humidity);
+        temperature_data.push(temperature);
+      }
+    }
+    else{
+        console.log("error");
+    }
+  })
+}
 
 app.get("/", (req, res) => {
   res.send(`<h1 style="text-align: center">smart-drip-backend</h1>`);
@@ -57,15 +81,12 @@ app.post("/change_config", (req, res) => {
 });
 
 app.get("/check_history", (req,res)=>{
-  let humidity_data=[];
-  let temperature_data=[];
-  for(let i=0;i<31;i++){
-    humidity_data.push(i*100);
-    temperature_data.push(i*110);
-  }
   let data = {humidity_data: humidity_data, temperature_data:temperature_data};
   res.status(200).send(data);
 })
+
+setInterval(()=>{read_sensor_data();},3600000); //read data every hour
+
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
