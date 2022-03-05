@@ -20,6 +20,7 @@ function read_sensor_data(){
     if(!err){
       console.log(`temp: ${temperature} degrees celsius, humidity: ${humidity}%`);
       if(humidity_data.length == 775 || temperature_data.length == 775){ 
+
             humidity_data.shift();
             temperature_data.shift();
             humidity_data.push(humidity);
@@ -84,6 +85,7 @@ app.get("/check_history", (req,res)=>{
   let data = {humidity_data: humidity_data, temperature_data:temperature_data};
   res.status(200).send(data);
 })
+
 
 read_sensor_data();
 setInterval(()=>{read_sensor_data();},3600000); //read data every hour
