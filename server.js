@@ -1,15 +1,16 @@
 const express = require("express");
+const dotenv = require("dotenv").config();
 var Gpio = require("onoff").Gpio;
-var LED = new Gpio(17, "out");
-var intervalID = 0;
+var cors = require("cors");
 var sensor = require("node-dht-sensor");
-let humidity_data = [];
-let temperature_data = [];
 
 const app = express();
 const port = 3001;
+let LED = new Gpio(17, "out");
+let intervalID = 0;
+let humidity_data = [];
+let temperature_data = [];
 
-var cors = require("cors");
 const { default: axios } = require("axios");
 
 app.use(cors()); // Use this after the variable declaration
@@ -40,7 +41,11 @@ app.get("/", (req, res) => {
   res.send(`<h1 style="text-align: center">smart-drip-backend</h1>`);
 });
 
-app.post("/change_config", (req, res) => {
+app.get(`/${process.env.USER_TOKEN}`, (req, res) => {
+  res.status(200).send("Success");
+});
+
+app.post(`/change_config/${process.env.USER_TOKEN}`, (req, res) => {
   let chosen_config = req.body.mode;
   if (chosen_config == 0) {
     if (intervalID) {
@@ -93,7 +98,7 @@ app.post("/change_config", (req, res) => {
   res.status(200).send("Success");
 });
 
-app.get("/check_history", (req, res) => {
+app.get(`/check_history/${process.env.USER_TOKEN}`, (req, res) => {
   let data = {
     humidity_data: humidity_data,
     temperature_data: temperature_data,
