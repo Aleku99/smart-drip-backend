@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 });
 
 app.get(`/${process.env.USER_TOKEN}`, (req, res) => {
-  res.status(200).send("Success");
+  res.status(200).send("System found");
 });
 
 app.post(`/change_config/${process.env.USER_TOKEN}`, (req, res) => {
