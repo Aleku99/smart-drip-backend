@@ -41,11 +41,16 @@ app.get("/", (req, res) => {
   res.send(`<h1 style="text-align: center">smart-drip-backend</h1>`);
 });
 
-app.get(`/${process.env.USER_TOKEN}`, (req, res) => {
-  res.status(200).send("System found");
+app.post(`/check_system`, (req, res) => {
+  let { userToken } = req.body;
+  if (userToken === process.env.USER_TOKEN) {
+    res.status(200).send("System found");
+  } else {
+    res.status(401).send("System not found");
+  }
 });
 
-app.post(`/change_config/${process.env.USER_TOKEN}`, (req, res) => {
+app.post(`/change_config`, (req, res) => {
   let chosen_config = req.body.mode;
   if (chosen_config == 0) {
     if (intervalID) {
@@ -98,7 +103,7 @@ app.post(`/change_config/${process.env.USER_TOKEN}`, (req, res) => {
   res.status(200).send("Success");
 });
 
-app.get(`/check_history/${process.env.USER_TOKEN}`, (req, res) => {
+app.get(`/check_history`, (req, res) => {
   let data = {
     humidity_data: humidity_data,
     temperature_data: temperature_data,
@@ -109,7 +114,7 @@ app.get(`/check_history/${process.env.USER_TOKEN}`, (req, res) => {
 read_sensor_data();
 setInterval(() => {
   read_sensor_data();
-}, 3600000); //read data every hour
+}, 1000); //read data every hour
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
