@@ -1,5 +1,5 @@
 const express = require("express");
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv").config({ path: ".env" });
 var Gpio = require("onoff").Gpio;
 var cors = require("cors");
 var sensor = require("node-dht-sensor");
@@ -10,6 +10,7 @@ let LED = new Gpio(17, "out");
 let intervalID = 0;
 let humidity_data = [];
 let temperature_data = [];
+LED.writeSync(1);
 
 const { default: axios } = require("axios");
 
@@ -19,9 +20,9 @@ app.use(express.json());
 function read_sensor_data() {
   sensor.read(11, 15, function (err, temperature, humidity) {
     if (!err) {
-      console.log(
-        `temp: ${temperature} degrees celsius, humidity: ${humidity}%`
-      );
+      //console.log(
+      //`temp: ${temperature} degrees celsius, humidity: ${humidity}%`
+      //);
       if (humidity_data.length == 775 || temperature_data.length == 775) {
         humidity_data.shift();
         temperature_data.shift();
@@ -43,9 +44,13 @@ app.get("/", (req, res) => {
 
 app.post(`/check_system`, (req, res) => {
   let { userToken } = req.body;
+  console.log(userToken);
+  console.log(process.env.USER_TOKEN);
   if (userToken === process.env.USER_TOKEN) {
     res.status(200).send("System found");
   } else {
+    console.log(process.env.USER_TOKEN);
+    console.log(userToken);
     res.status(401).send("System not found");
   }
 });
@@ -62,9 +67,9 @@ app.post(`/change_config`, (req, res) => {
     intervalID = setInterval(() => {
       let date = new Date();
       if (hour == date.getHours() && minutes == date.getMinutes()) {
-        LED.writeSync(1);
+        LED.writeSync(0);
         setTimeout(() => {
-          LED.writeSync(0);
+          LED.writeSync(1);
         }, duration * 1000);
       } else {
       }
@@ -76,9 +81,9 @@ app.post(`/change_config`, (req, res) => {
     let interval = req.body.interval;
     let duration = req.body.duration;
     intervalID = setInterval(() => {
-      LED.writeSync(1);
+      LED.writeSync(0);
       setTimeout(() => {
-        LED.writeSync(0);
+        LED.writeSync(1);
       }, duration * 1000);
     }, interval * 3600000);
   } else {
@@ -89,9 +94,9 @@ app.post(`/change_config`, (req, res) => {
       sensor.read(11, 15, function (err, temperature, humidity) {
         if (!err) {
           if (temperature > 30 || humidity < 40) {
-            LED.writeSync(1);
+            LED.writeSync(0);
             setTimeout(() => {
-              LED.writeSync(0);
+              LED.writeSync(1);
             }, 5000);
           }
         } else {
