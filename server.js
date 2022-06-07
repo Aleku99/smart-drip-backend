@@ -44,18 +44,15 @@ function checkDate(date, dates) {
     dateFound = true;
   } else {
     dates.forEach((d) => {
-      console.log(d.day, d.month, d.year);
-      console.log(date.getDate(), date.getMonth(), date.getFullYear());
       if (
         d.year == date.getFullYear() &&
-        d.month == date.getMonth() &&
+        d.month == date.getMonth() + 1 &&
         d.day == date.getDate()
       ) {
         dateFound = true;
       }
     });
   }
-  // console.log(dateFound);
   return dateFound;
 }
 app.get("/", (req, res) => {
@@ -124,7 +121,7 @@ app.post(`/change_config`, (req, res) => {
           LED.writeSync(1);
         }, duration * 1000);
       }
-    }, interval * 3600000);
+    }, interval * 360000);
   } else {
     if (intervalID) {
       clearInterval(intervalID);
@@ -159,7 +156,7 @@ app.get(`/check_history`, (req, res) => {
 read_sensor_data();
 setInterval(() => {
   read_sensor_data();
-}, 1000); //read data every hour
+}, 360000); //read data every hour
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
