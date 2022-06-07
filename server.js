@@ -44,6 +44,8 @@ function checkDate(date, dates) {
     dateFound = true;
   } else {
     dates.forEach((d) => {
+      console.log(d.day, d.month, d.year);
+      console.log(date.getDate(), date.getMonth(), date.getFullYear());
       if (
         d.year == date.getFullYear() &&
         d.month == date.getMonth() &&
@@ -53,7 +55,7 @@ function checkDate(date, dates) {
       }
     });
   }
-  console.log(dateFound);
+  // console.log(dateFound);
   return dateFound;
 }
 app.get("/", (req, res) => {
