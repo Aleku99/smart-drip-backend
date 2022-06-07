@@ -40,7 +40,7 @@ function read_sensor_data() {
 }
 function checkDate(date, dates) {
   let dateFound = false;
-  if (date == null) {
+  if (date == undefined) {
     dateFound = true;
   } else {
     dates.forEach((d) => {
