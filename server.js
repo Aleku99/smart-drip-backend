@@ -8,6 +8,7 @@ const app = express();
 const port = 3001;
 let LED = new Gpio(17, "out");
 let intervalID = 0;
+let irrigationActive = false;
 let humidity_data = [];
 let temperature_data = [];
 LED.writeSync(1);
@@ -37,7 +38,24 @@ function read_sensor_data() {
     }
   });
 }
-
+function checkDate(date, dates) {
+  let dateFound = false;
+  if (date == null) {
+    dateFound = true;
+  } else {
+    dates.forEach((d) => {
+      if (
+        d.year == date.getFullYear() &&
+        d.month == date.getMonth() &&
+        d.day == date.getDate()
+      ) {
+        dateFound = true;
+      }
+    });
+  }
+  console.log(dateFound);
+  return dateFound;
+}
 app.get("/", (req, res) => {
   res.send(`<h1 style="text-align: center">smart-drip-backend</h1>`);
 });
@@ -64,9 +82,14 @@ app.post(`/change_config`, (req, res) => {
     let hour = req.body.hour;
     let minutes = req.body.minutes;
     let duration = req.body.duration;
+    let dates = req.body.dates;
     intervalID = setInterval(() => {
       let date = new Date();
-      if (hour == date.getHours() && minutes == date.getMinutes()) {
+      if (
+        hour == date.getHours() &&
+        minutes == date.getMinutes() &&
+        checkDate(date, dates)
+      ) {
         LED.writeSync(0);
         setTimeout(() => {
           LED.writeSync(1);
@@ -80,11 +103,15 @@ app.post(`/change_config`, (req, res) => {
     }
     let interval = req.body.interval;
     let duration = req.body.duration;
+    let dates = req.body.dates;
     intervalID = setInterval(() => {
-      LED.writeSync(0);
-      setTimeout(() => {
-        LED.writeSync(1);
-      }, duration * 1000);
+      let date = new Date();
+      if (checkDate(date, dates)) {
+        LED.writeSync(0);
+        setTimeout(() => {
+          LED.writeSync(1);
+        }, duration * 1000);
+      }
     }, interval * 3600000);
   } else {
     if (intervalID) {
