@@ -78,6 +78,7 @@ app.post(`/change_config`, (req, res) => {
   if (chosen_config == 0) {
     if (intervalID) {
       clearInterval(intervalID);
+      irrigationActive = false;
     }
     let hour = req.body.hour;
     let minutes = req.body.minutes;
@@ -90,20 +91,29 @@ app.post(`/change_config`, (req, res) => {
         minutes == date.getMinutes() &&
         checkDate(date, dates)
       ) {
-        LED.writeSync(0);
-        setTimeout(() => {
-          LED.writeSync(1);
-        }, duration * 1000);
-      } else {
+        if (irrigationActive === false) {
+          LED.writeSync(0);
+          irrigationActive = true;
+          setTimeout(() => {
+            LED.writeSync(1);
+            irrigationActive = false;
+          }, duration * 1000);
+        }
       }
-    }, 60000);
+    }, 1000);
   } else if (chosen_config == 1) {
     if (intervalID) {
       clearInterval(intervalID);
+      irrigationActive = false;
     }
     let interval = req.body.interval;
     let duration = req.body.duration;
     let dates = req.body.dates;
+    LED.writeSync(0);
+    setTimeout(() => {
+      LED.writeSync(1);
+    }, duration * 1000);
+
     intervalID = setInterval(() => {
       let date = new Date();
       if (checkDate(date, dates)) {
@@ -116,6 +126,7 @@ app.post(`/change_config`, (req, res) => {
   } else {
     if (intervalID) {
       clearInterval(intervalID);
+      irrigationActive = false;
     }
     intervalID = setInterval(() => {
       sensor.read(11, 15, function (err, temperature, humidity) {
