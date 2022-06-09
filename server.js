@@ -153,11 +153,10 @@ app.post(`/change_config`, (req, res) => {
     intervalID = setInterval(() => {
       sensor.read(11, 15, function (err, temperature, humidity) {
         if (!err) {
-          if (temperature > 30 || humidity < 40) {
+          if (temperature > 31 || humidity < 39) {
             LED.writeSync(0);
-            setTimeout(() => {
-              LED.writeSync(1);
-            }, 5000);
+          } else if (temperature < 29 || humidity > 41) {
+            LED.writeSync(1);
           }
         } else {
           console.log(err);
