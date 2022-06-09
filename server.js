@@ -11,12 +11,29 @@ let intervalID = 0;
 let irrigationActive = false;
 let humidity_data = [];
 let temperature_data = [];
-LED.writeSync(1);
 
 const { default: axios } = require("axios");
 
-app.use(cors()); // Use this after the variable declaration
+app.use(cors());
 app.use(express.json());
+
+function startup() {
+  LED.writeSync(1);
+  intervalID = setInterval(() => {
+    sensor.read(11, 15, function (err, temperature, humidity) {
+      if (!err) {
+        if (temperature > 30 || humidity < 40) {
+          LED.writeSync(0);
+          setTimeout(() => {
+            LED.writeSync(1);
+          }, 5000);
+        }
+      } else {
+        console.log(err);
+      }
+    });
+  }, 60000);
+}
 
 function read_sensor_data() {
   sensor.read(11, 15, function (err, temperature, humidity) {
@@ -55,6 +72,9 @@ function checkDate(date, dates) {
   }
   return dateFound;
 }
+
+startup();
+
 app.get("/", (req, res) => {
   res.send(`<h1 style="text-align: center">smart-drip-backend</h1>`);
 });
