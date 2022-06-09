@@ -121,7 +121,7 @@ app.post(`/change_config`, (req, res) => {
           LED.writeSync(1);
         }, duration * 1000);
       }
-    }, interval * 360000);
+    }, interval * 3600000);
   } else {
     if (intervalID) {
       clearInterval(intervalID);
@@ -156,7 +156,7 @@ app.get(`/check_history`, (req, res) => {
 read_sensor_data();
 setInterval(() => {
   read_sensor_data();
-}, 360000); //read data every hour
+}, 3600000); //read data every hour
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
