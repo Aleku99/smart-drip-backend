@@ -108,10 +108,13 @@ app.post(`/change_config`, (req, res) => {
     let interval = req.body.interval;
     let duration = req.body.duration;
     let dates = req.body.dates;
-    LED.writeSync(0);
-    setTimeout(() => {
-      LED.writeSync(1);
-    }, duration * 1000);
+    let date = new Date();
+    if (checkDate(date, dates)) {
+      LED.writeSync(0);
+      setTimeout(() => {
+        LED.writeSync(1);
+      }, duration * 1000);
+    }
 
     intervalID = setInterval(() => {
       let date = new Date();
