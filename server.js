@@ -57,7 +57,7 @@ function read_sensor_data() {
 }
 function checkDate(date, dates) {
   let dateFound = false;
-  if (dates == undefined) {
+  if (dates == "daily") {
     dateFound = true;
   } else {
     dates.forEach((d) => {
