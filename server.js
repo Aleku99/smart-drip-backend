@@ -3,6 +3,16 @@ const dotenv = require("dotenv").config({ path: ".env" });
 var Gpio = require("onoff").Gpio;
 var cors = require("cors");
 var sensor = require("node-dht-sensor");
+const {
+  getDatabase,
+  ref,
+  set,
+  get,
+  child,
+  push,
+  update,
+  getDatabase,
+} = require("firebase/database");
 
 const app = express();
 const port = 3001;
@@ -12,27 +22,113 @@ let irrigationActive = false;
 let humidity_data = [];
 let temperature_data = [];
 
-const { default: axios } = require("axios");
-
 app.use(cors());
 app.use(express.json());
 
 function startup() {
   LED.writeSync(1);
-  intervalID = setInterval(() => {
-    sensor.read(11, 15, function (err, temperature, humidity) {
-      if (!err) {
-        if (temperature > 30 || humidity < 40) {
+  getConfigurationFromDB();
+  //turn on automatic mode at startup
+  // intervalID = setInterval(() => {
+  //   sensor.read(11, 15, function (err, temperature, humidity) {
+  //     if (!err) {
+  //       if (temperature > 30 || humidity < 40) {
+  //         LED.writeSync(0);
+  //         setTimeout(() => {
+  //           LED.writeSync(1);
+  //         }, 5000);
+  //       }
+  //     } else {
+  //       console.log(err);
+  //     }
+  //   });
+  // }, 60000);
+
+  //read sensor data once at startup
+  read_sensor_data();
+
+  //set 1h reading interval
+  setInterval(() => {
+    read_sensor_data();
+  }, 3600000); //read data every hour
+}
+
+async function getConfigurationFromDB() {
+  const dbRef = ref(getDatabase());
+  get(child(dbRef, "users/"))
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        snapshot.forEach((child) => {
+          if (child.val().userToken === process.env.USER_TOKEN) {
+            setStartConfiguration(child.val().config);
+          }
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+function setStartConfiguration(config) {
+  if (config.mode == "0") {
+    let hour = config.hour;
+    let minutes = config.minutes;
+    let duration = config.duration;
+    let dates = config.dates;
+    intervalID = setInterval(() => {
+      let date = new Date();
+      if (
+        hour == date.getHours() &&
+        minutes == date.getMinutes() &&
+        checkDate(date, dates)
+      ) {
+        if (irrigationActive === false) {
           LED.writeSync(0);
+          irrigationActive = true;
           setTimeout(() => {
             LED.writeSync(1);
-          }, 5000);
+            irrigationActive = false;
+          }, duration * 1000);
         }
-      } else {
-        console.log(err);
       }
-    });
-  }, 60000);
+    }, 1000);
+  } else if (config.mode == "1") {
+    let interval = config.interval;
+    let duration = config.duration;
+    let dates = config.dates;
+    let date = new Date();
+    if (checkDate(date, dates)) {
+      LED.writeSync(0);
+      setTimeout(() => {
+        LED.writeSync(1);
+      }, duration * 1000);
+    }
+
+    intervalID = setInterval(() => {
+      let date = new Date();
+      if (checkDate(date, dates)) {
+        LED.writeSync(0);
+        setTimeout(() => {
+          LED.writeSync(1);
+        }, duration * 1000);
+      }
+    }, interval * 3600000);
+  } else if (config.mode == "2") {
+    intervalID = setInterval(() => {
+      sensor.read(11, 15, function (err, temperature, humidity) {
+        if (!err) {
+          if (temperature > 31 || humidity < 39) {
+            LED.writeSync(0);
+          } else if (temperature < 29 || humidity > 41) {
+            LED.writeSync(1);
+          }
+        } else {
+          console.log(err);
+        }
+      });
+    }, 60000);
+  }
 }
 
 function read_sensor_data() {
@@ -174,11 +270,6 @@ app.get(`/check_history`, (req, res) => {
   };
   res.status(200).send(data);
 });
-
-read_sensor_data();
-setInterval(() => {
-  read_sensor_data();
-}, 3600000); //read data every hour
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
