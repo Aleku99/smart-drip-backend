@@ -36,7 +36,7 @@ function startup() {
   }, 3600000); //read data every hour
 }
 
-async function getConfigurationFromDB() {
+function getConfigurationFromDB() {
   const dbRef = ref(getDatabase());
   get(child(dbRef, "users/"))
     .then((snapshot) => {
