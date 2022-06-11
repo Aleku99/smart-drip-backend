@@ -4,7 +4,7 @@ var Gpio = require("onoff").Gpio;
 var cors = require("cors");
 var sensor = require("node-dht-sensor");
 const { getDatabase, ref, get, child } = require("firebase/database");
-const database = import("./firebase.js");
+const database = require("./firebase.js");
 
 const app = express();
 const port = 3001;
@@ -37,7 +37,7 @@ function getConfigurationFromDB() {
     .then((snapshot) => {
       if (snapshot.exists()) {
         snapshot.forEach((child) => {
-          if (child.val().userToken === process.env.USER_TOKEN) {
+          if (child.val().usertoken === process.env.USER_TOKEN) {
             setStartConfiguration(child.val().config);
           }
         });
