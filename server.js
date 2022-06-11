@@ -3,14 +3,8 @@ const dotenv = require("dotenv").config({ path: ".env" });
 var Gpio = require("onoff").Gpio;
 var cors = require("cors");
 var sensor = require("node-dht-sensor");
-const {
-  getDatabase,
-  ref,
-  get,
-  child,
-
-  getDatabase,
-} = require("firebase/database");
+const { getDatabase, ref, get, child } = require("firebase/database");
+const database = import("./firebase.js");
 
 const app = express();
 const port = 3001;
@@ -24,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 function startup() {
+  console.log("muie");
   LED.writeSync(1);
   getConfigurationFromDB();
 
@@ -54,6 +49,7 @@ function getConfigurationFromDB() {
 }
 
 function setStartConfiguration(config) {
+  console.log(config);
   if (config.mode == "0") {
     let hour = config.hour;
     let minutes = config.minutes;
