@@ -6,11 +6,9 @@ var sensor = require("node-dht-sensor");
 const {
   getDatabase,
   ref,
-  set,
   get,
   child,
-  push,
-  update,
+
   getDatabase,
 } = require("firebase/database");
 
@@ -28,26 +26,11 @@ app.use(express.json());
 function startup() {
   LED.writeSync(1);
   getConfigurationFromDB();
-  //turn on automatic mode at startup
-  // intervalID = setInterval(() => {
-  //   sensor.read(11, 15, function (err, temperature, humidity) {
-  //     if (!err) {
-  //       if (temperature > 30 || humidity < 40) {
-  //         LED.writeSync(0);
-  //         setTimeout(() => {
-  //           LED.writeSync(1);
-  //         }, 5000);
-  //       }
-  //     } else {
-  //       console.log(err);
-  //     }
-  //   });
-  // }, 60000);
 
   //read sensor data once at startup
   read_sensor_data();
 
-  //set 1h reading interval
+  //set 1h temp/humidity reading interval
   setInterval(() => {
     read_sensor_data();
   }, 3600000); //read data every hour
@@ -134,9 +117,6 @@ function setStartConfiguration(config) {
 function read_sensor_data() {
   sensor.read(11, 15, function (err, temperature, humidity) {
     if (!err) {
-      //console.log(
-      //`temp: ${temperature} degrees celsius, humidity: ${humidity}%`
-      //);
       if (humidity_data.length == 775 || temperature_data.length == 775) {
         humidity_data.shift();
         temperature_data.shift();
