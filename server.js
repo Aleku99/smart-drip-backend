@@ -18,7 +18,6 @@ app.use(cors());
 app.use(express.json());
 
 function startup() {
-  console.log("muie");
   LED.writeSync(1);
   getConfigurationFromDB();
 
