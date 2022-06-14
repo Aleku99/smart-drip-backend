@@ -168,6 +168,7 @@ app.post(`/change_config`, (req, res) => {
   if (chosen_config == 0) {
     if (intervalID) {
       clearInterval(intervalID);
+      LED.writeSync(1);
       irrigationActive = false;
     }
     let hour = req.body.hour;
@@ -194,6 +195,7 @@ app.post(`/change_config`, (req, res) => {
   } else if (chosen_config == 1) {
     if (intervalID) {
       clearInterval(intervalID);
+      LED.writeSync(1);
       irrigationActive = false;
     }
     let interval = req.body.interval;
