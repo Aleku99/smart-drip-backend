@@ -105,7 +105,7 @@ function setStartConfiguration(config) {
           console.log(err);
         }
       });
-    }, 60000);
+    }, 5000);
   }
 }
 
