@@ -66,8 +66,10 @@ function setStartConfiguration(config) {
           irrigationActive = true;
           setTimeout(() => {
             LED.writeSync(1);
-            irrigationActive = false;
           }, duration * 1000);
+          setTimeout(() => {
+            irrigationActive = false;
+          }, 60000);
         }
       }
     }, 1000);
@@ -77,28 +79,40 @@ function setStartConfiguration(config) {
     let dates = config.dates;
     let date = new Date();
     if (checkDate(date, dates)) {
-      LED.writeSync(0);
+      if (irrigationActive === false) {
+        LED.writeSync(0);
+        irrigationActive = true;
+      }
       setTimeout(() => {
         LED.writeSync(1);
       }, duration * 1000);
+      setTimeout(() => {
+        irrigationActive = false;
+      }, 60000);
     }
 
     intervalID = setInterval(() => {
       let date = new Date();
       if (checkDate(date, dates)) {
-        LED.writeSync(0);
+        if (irrigationActive === false) {
+          LED.writeSync(0);
+          irrigationActive = true;
+        }
         setTimeout(() => {
           LED.writeSync(1);
         }, duration * 1000);
+        setTimeout(() => {
+          irrigationActive = false;
+        }, 60000);
       }
     }, interval * 3600000);
   } else if (config.mode == "2") {
     intervalID = setInterval(() => {
       sensor.read(11, 15, function (err, temperature, humidity) {
         if (!err) {
-          if (temperature > 31 || humidity < 39) {
+          if (temperature >= 31 || humidity <= 39) {
             LED.writeSync(0);
-          } else if (temperature < 29 || humidity > 41) {
+          } else if (temperature <= 29 || humidity >= 41) {
             LED.writeSync(1);
           }
         } else {
@@ -187,8 +201,10 @@ app.post(`/change_config`, (req, res) => {
           irrigationActive = true;
           setTimeout(() => {
             LED.writeSync(1);
-            irrigationActive = false;
           }, duration * 1000);
+          setTimeout(() => {
+            irrigationActive = false;
+          }, 60000);
         }
       }
     }, 1000);
@@ -203,25 +219,38 @@ app.post(`/change_config`, (req, res) => {
     let dates = req.body.dates;
     let date = new Date();
     if (checkDate(date, dates)) {
-      LED.writeSync(0);
+      if (irrigationActive === false) {
+        LED.writeSync(0);
+        irrigationActive = true;
+      }
       setTimeout(() => {
         LED.writeSync(1);
       }, duration * 1000);
+      setTimeout(() => {
+        irrigationActive = false;
+      }, 60000);
     }
 
     intervalID = setInterval(() => {
       let date = new Date();
       if (checkDate(date, dates)) {
-        LED.writeSync(0);
+        if (irrigationActive === false) {
+          LED.writeSync(0);
+          irrigationActive = true;
+        }
         setTimeout(() => {
           LED.writeSync(1);
         }, duration * 1000);
+        setTimeout(() => {
+          irrigationActive = false;
+        }, 60000);
       }
     }, interval * 3600000);
   } else {
     if (intervalID) {
       clearInterval(intervalID);
       irrigationActive = false;
+      LED.writeSync(1);
     }
     intervalID = setInterval(() => {
       sensor.read(11, 15, function (err, temperature, humidity) {
@@ -235,7 +264,7 @@ app.post(`/change_config`, (req, res) => {
           console.log(err);
         }
       });
-    }, 60000);
+    }, 5000);
   }
   res.status(200).send("Success");
 });
