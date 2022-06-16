@@ -119,7 +119,7 @@ function setStartConfiguration(config) {
           console.log(err);
         }
       });
-    }, 5000);
+    }, 1000);
   }
 }
 
